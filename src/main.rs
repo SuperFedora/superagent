@@ -13,7 +13,7 @@ use std::io::{self, IsTerminal};
 use std::process::{self, Command};
 
 fn print_help() {
-    println!("SuperAgent v0.1.0 — Standalone 16-Bit Autonomous Workstation Agent & Cast Comms Daemon");
+    println!("SuperAgent v0.2.0 — Standalone 16-Bit Autonomous Workstation Agent & Cast Comms Daemon");
     println!("Usage:");
     println!("  superagent                                  Launch TUI (or print status if non-TTY)");
     println!("  superagent tui | configure                  Launch interactive 16-Bit Agent & Ollama Studio");
@@ -27,7 +27,7 @@ fn print_help() {
 }
 
 fn print_status(st: &AgentState) {
-    println!("SuperAgent v0.1.0 — Autonomous Workstation Agent & Cast Comms Daemon");
+    println!("SuperAgent v0.2.0 — Autonomous Workstation Agent & Cast Comms Daemon");
     println!("  Active Harness : {} [{}] ({})", st.active_label, st.active_agent, st.active_cmd);
     println!("  OpenClaw State : {}", if st.openclaw_ready { "ready" } else { "standby" });
     println!("  Ollama Server  : http://{} [{}] (Model: {})", st.ollama_host, if st.ollama_online { "ONLINE" } else { "OFFLINE" }, st.ollama_model);
@@ -49,7 +49,7 @@ fn main() {
                 return;
             }
             "-V" | "--version" | "version" => {
-                println!("superagent 0.1.0 (SuperFedora/superagent — Rust 1.99 Native Engine)");
+                println!("superagent 0.2.0 (SuperFedora/superagent — Rust 1.99 Native Engine)");
                 return;
             }
             "tui" | "configure" => {
