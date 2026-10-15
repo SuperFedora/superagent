@@ -150,6 +150,8 @@ pub fn run_watchdog(st: &mut AgentState, json_mode: bool, notify: bool) -> i32 {
     if notify {
         if rep.cpu_temp_c >= 88 || rep.nvme_temp_c >= 80 {
             let _ = relay_cast("medic", "SYS MEDIC: Thermal Spike", &format!("CPU {}C / NVMe {}C (RAM {}%)", rep.cpu_temp_c, rep.nvme_temp_c, rep.mem_pct));
+        } else if rep.selinux_mode != "Enforcing" {
+            let _ = relay_cast("security", "SEC ALERT: SELinux Mode Degraded", &format!("SELinux is {} (expected Enforcing).", rep.selinux_mode));
         } else if !rep.failed_units.is_empty() {
             let _ = relay_cast("commander", "COMMANDER: Failed Unit Detected", &format!("Units: {}", rep.failed_units.join(", ")));
         } else if !rep.net_up {
@@ -178,6 +180,8 @@ pub fn run_daemon(st: &mut AgentState, once: bool) -> i32 {
         let rep = probe_watchdog();
         if rep.cpu_temp_c >= 90 || rep.nvme_temp_c >= 82 {
             let _ = relay_cast("medic", "SYS MEDIC: Thermal Threshold Alert", &format!("CPU {}C / NVMe {}C (RAM {}%).", rep.cpu_temp_c, rep.nvme_temp_c, rep.mem_pct));
+        } else if rep.selinux_mode != "Enforcing" {
+            let _ = relay_cast("security", "SEC ALERT: SELinux Mode Degraded", &format!("SELinux is {} (expected Enforcing).", rep.selinux_mode));
         } else if !rep.failed_units.is_empty() {
             let _ = relay_cast("commander", "COMMANDER: Systemd Unit Alert", &format!("Failed units: {}", rep.failed_units.join(", ")));
         } else if st.ollama_online != last_ol {
