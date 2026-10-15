@@ -1,0 +1,15 @@
+[Unit]
+Description=SuperFedora Autonomous 16-Bit Workstation Agent & Cast Comms Daemon
+Documentation=https://superfedora.github.io
+PartOf=hyprland-session.target
+After=hyprland-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/superagent daemon
+Restart=on-failure
+RestartSec=5
+SuccessExitStatus=0 69 78
+
+[Install]
+WantedBy=hyprland-session.target
