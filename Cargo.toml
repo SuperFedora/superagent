@@ -1,6 +1,6 @@
 [package]
 name = "superagent"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.99"
 description = "SuperFedora 16-Bit Autonomous Workstation Agent (OpenClaw, Ollama & Cast Comms Daemon)"

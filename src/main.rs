@@ -5,7 +5,7 @@ mod comms;
 mod state;
 mod tui;
 
-use crate::comms::{ask_agent, exec_quake_runner, relay_cast, run_daemon};
+use crate::comms::{ask_agent, exec_quake_runner, relay_cast, run_daemon, run_watchdog};
 use crate::state::AgentState;
 use crate::tui::run_tui;
 use std::env;
@@ -13,11 +13,12 @@ use std::io::{self, IsTerminal};
 use std::process::{self, Command};
 
 fn print_help() {
-    println!("SuperAgent v0.2.0 — Standalone 16-Bit Autonomous Workstation Agent & Cast Comms Daemon");
+    println!("SuperAgent v0.3.0 — Standalone 16-Bit Autonomous Workstation Agent & Cast Watchdog");
     println!("Usage:");
     println!("  superagent                                  Launch TUI (or print status if non-TTY)");
     println!("  superagent tui | configure                  Launch interactive 16-Bit Agent & Ollama Studio");
     println!("  superagent status                           Show active harness, Ollama VRAM & daemon state");
+    println!("  superagent watchdog [--json|--notify]       Run zero-token local telemetry & anomaly watchdog");
     println!("  superagent daemon [--once]                  Run autonomous watchdog & Cast Comms relay");
     println!("  superagent notify <role> <title> [body]     Transmit 16-bit Cast Comms notification (supernotify)");
     println!("  superagent openclaw [status|ask <prompt>]   OpenClaw autonomous harness status or query");
@@ -27,11 +28,11 @@ fn print_help() {
 }
 
 fn print_status(st: &AgentState) {
-    println!("SuperAgent v0.2.0 — Autonomous Workstation Agent & Cast Comms Daemon");
+    println!("SuperAgent v0.3.0 — Autonomous Workstation Agent & Cast Watchdog");
     println!("  Active Harness : {} [{}] ({})", st.active_label, st.active_agent, st.active_cmd);
     println!("  OpenClaw State : {}", if st.openclaw_ready { "ready" } else { "standby" });
     println!("  Ollama Server  : http://{} [{}] (Model: {})", st.ollama_host, if st.ollama_online { "ONLINE" } else { "OFFLINE" }, st.ollama_model);
-    println!("  Cast Comms     : supernotify --cast ai (AGY // OPENCLAW)");
+    println!("  Cast Watchdog  : medic, security, navigator, commander, ai (supernotify --cast)");
     println!("  Harnesses      :");
     for a in &st.agents {
         let mk = if a.active { "[*]" } else { "   " };
@@ -49,7 +50,7 @@ fn main() {
                 return;
             }
             "-V" | "--version" | "version" => {
-                println!("superagent 0.2.0 (SuperFedora/superagent — Rust 1.99 Native Engine)");
+                println!("superagent 0.3.0 (SuperFedora/superagent — Rust 1.99 Native Engine)");
                 return;
             }
             "tui" | "configure" => {
@@ -72,6 +73,11 @@ fn main() {
     let cmd = args[0].as_str();
     match cmd {
         "status" => print_status(&st),
+        "watchdog" | "audit" | "health" => {
+            let json = args.iter().any(|a| a == "--json");
+            let notify = args.iter().any(|a| a == "--notify" || a == "--cast");
+            process::exit(run_watchdog(&mut st, json, notify));
+        }
         "daemon" => {
             let once = args.iter().any(|a| a == "--once" || a == "-1" || a == "once");
             process::exit(run_daemon(&mut st, once));
